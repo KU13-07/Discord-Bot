@@ -232,14 +232,14 @@ async def update(ctx):
   gData = requests.get(f'https://api.hypixel.net/guild?key={api_key}&name=aatrox').json()
   for m in guild.members:
     r = None
-    if m.id != 263875673943179265 and not m.bot and not ctx.guild.get_role(854544288415088652) in m.roles:
+    if m.id != 263875673943179265 and not m.bot and not guild.get_role(854544288415088652) in m.roles:
       await m.remove_roles(
-        ctx.guild.get_role(853986930735448085),
-        ctx.guild.get_role(853987031331504178),
-        ctx.guild.get_role(853987083672879125),
-        ctx.guild.get_role(853987124268761090),
-        ctx.guild.get_role(854039329897578516),
-        ctx.guild.get_role(853985058050015243))
+        guild.get_role(853986930735448085),
+        guild.get_role(853987031331504178),
+        guild.get_role(853987083672879125),
+        guild.get_role(853987124268761090),
+        guild.get_role(854039329897578516),
+        guild.get_role(853985058050015243))
       if not f'{m.id}' in data:
         data[f'{m.id}'] = {}
         data[f'{m.id}']["Coins"] = 0
@@ -250,11 +250,11 @@ async def update(ctx):
       if "uuid" in data[f'{m.id}']:
         pData = requests.get(f"https://api.hypixel.net/player?key={api_key}&uuid={data[str(m.id)]['uuid']}").json()
         await m.edit(nick=pData["player"]["displayname"])
-        r = ctx.guild.get_role(853985058050015243)
+        r = guild.get_role(853985058050015243)
         for u in gData["guild"]["members"]:
           if data[f'{m.id}']["uuid"] == u["uuid"]:
             if u["rank"] != "Guild Master":
-              await m.add_roles(r, ctx.guild.get_role(854039329897578516), discord.utils.get(guild.roles,name=u["rank"]))
+              await m.add_roles(r, guild.get_role(854039329897578516), discord.utils.get(guild.roles,name=u["rank"]))
   print("update complete")
 
 bot.run(config["token"])
