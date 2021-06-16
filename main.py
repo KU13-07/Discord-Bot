@@ -109,7 +109,7 @@ async def on_message(ctx):
 
   await bot.process_commands(ctx)
 
-  if ctx.channel.id == 853983506120179714 or 854546485664546836:
+  if ctx.channel.id == 853983506120179714 or ctx.channel.id == 854546485664546836:
     await ctx.delete()
 
   with open('data.json','w') as f:
