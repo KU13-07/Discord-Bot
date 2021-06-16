@@ -29,7 +29,7 @@ def multiplier(member):
 
 @bot.event
 async def on_ready():
-  #await update("e")
+  await update("e")
   print(bot.user)
 
 @bot.event
