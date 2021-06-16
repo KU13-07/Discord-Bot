@@ -29,7 +29,7 @@ def multiplier(member):
 
 @bot.event
 async def on_ready():
-  await update("e")
+  #await update("e")
   print(bot.user)
 
 @bot.event
@@ -78,6 +78,23 @@ async def gexp(ctx, arg=None):
             for i in u["expHistory"]:
               l.append(u["expHistory"][i])
             await ctx.send(sum(l))
+
+@bot.command()
+async def gtop(ctx):
+  gData = requests.get(f'https://api.hypixel.net/guild?key={api_key}&name=aatrox').json()
+  day = None
+  l = {}
+  for u in gData["guild"]["members"]:
+    for f in u["expHistory"]:
+      if not day:
+          day = f
+    f = requests.get(f'https://api.mojang.com/user/profiles/{u["uuid"]}/names').json()
+    l[f[-1]["name"]] = u["expHistory"][day]
+  sort_orders = sorted(l.items(), key=lambda x: x[1], reverse=True)
+  e = str()
+  for i, v in enumerate(sort_orders):
+    e += f'\n{i+1}. {v[1]} {v[0]} Guild Experience'
+  await ctx.send(f"-----------------------------------------------------\n                       Top Guild Experience\n                       {day} (today)\n{e}\n-----------------------------------------------------")
     
 @bot.command()
 async def verify(ctx, arg=None):
