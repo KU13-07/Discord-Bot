@@ -149,8 +149,13 @@ async def update(ctx):
   gData = requests.get(f'https://api.hypixel.net/guild?key={api_key}&name=aatrox').json()
   for m in guild.members:
     r = None
-    if m.id != 263875673943179265 and not m.bot:
-      await m.edit(roles=[])
+    if m.id != 263875673943179265 and not m.bot and not discord.utils.get(guild.roles, id=854544288415088652) in m.roles:
+      if discord.utils.get(guild.roles, id=854059398750404668) in m.roles:
+        for role in m.roles:
+          if role.id != 848363067616395284 and role.id != 854059398750404668:
+            await m.remove_roles(role)
+      else:
+        await m.edit(roles=[])
       if not f'{m.id}' in data:
         data[f'{m.id}'] = {}
         data[f'{m.id}']["Coins"] = 0
@@ -165,7 +170,7 @@ async def update(ctx):
         for u in gData["guild"]["members"]:
           if data[f'{m.id}']["uuid"] == u["uuid"]:
             if u["rank"] != "Guild Master":
-              await m.edit(roles=[r, discord.utils.get(guild.roles, id=854039329897578516), discord.utils.get(guild.roles,name=u["rank"])])
+              await m.add_roles(r, discord.utils.get(guild.roles, id=854039329897578516), discord.utils.get(guild.roles,name=u["rank"]))
   print("update complete")
 
 bot.run(config["token"])
