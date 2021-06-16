@@ -16,6 +16,8 @@ bot = commands.Bot(command_prefix=config["prefix"],intents=discord.Intents.all()
 def multiplier(member):
   if discord.utils.get(member.guild.roles, id=853986758789824582) in member.roles:
     return(2)
+  elif discord.utils.get(member.guild.roles, id=853986930735448085) in member.roles:
+    return(2)
   elif discord.utils.get(member.guild.roles, id=853987031331504178) in member.roles:
     return(2)
   elif discord.utils.get(member.guild.roles, id=853987083672879125) in member.roles:
@@ -27,9 +29,27 @@ def multiplier(member):
   else:
     return(1)  
 
+async def rolesSetup(rolesChannel):
+  await rolesChannel.purge(limit=100)
+  embed=discord.Embed(title="Roles", description="React to the following roles that apply to you", color=0xf822fc)
+  embed.add_field(name="1️⃣", value="she/her", inline=False)
+  embed.add_field(name="2️⃣", value="he/him", inline=False)
+  embed.add_field(name="3️⃣", value="they/them", inline=False)
+  embed.add_field(name="4️⃣", value="it/itself", inline=False)
+  embed.add_field(name="5️⃣", value="ze/zir", inline=False)
+  embed.add_field(name="6️⃣", value="i prefer just my name - no pronouns", inline=False)
+  embed.add_field(name="7️⃣", value="any/all", inline=False)
+  embed.add_field(name="❌", value="Clear all cosmetic roles", inline=False)
+  m = await rolesChannel.send(embed=embed)
+  for i in ['1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','6️⃣','7️⃣','❌']:
+    await m.add_reaction(i)
+
 @bot.event
 async def on_ready():
+  guild = discord.utils.get(bot.guilds, id=848363067616395284)
   await update("e")
+  await rolesSetup(discord.utils.get(guild.channels, id=854546485664546836))
+  
   print(bot.user)
 
 @bot.event
@@ -43,6 +63,36 @@ async def on_member_join(member):
     data[AuthorId]["EXP"] = 0
   with open('data.json','w') as f:
     json.dump(data,f,indent=2)
+
+@bot.event
+async def on_reaction_add(reaction, user):
+  if user.bot: return
+  if reaction.message.channel.id == 854546485664546836:
+    await reaction.message.remove_reaction(reaction, user)
+    role = None
+    if reaction.emoji == '1️⃣':
+      role = "she/her"
+    elif reaction.emoji == '2️⃣':
+      role = 'he/him'
+    elif reaction.emoji == '3️⃣':
+      role = 'they/them'
+    elif reaction.emoji == '4️⃣':
+      role = 'it/itself'
+    elif reaction.emoji == '5️⃣':
+      role = 'ze/zir'
+    elif reaction.emoji == '6️⃣':
+      role = 'i prefer just my name - no pronouns'
+    elif reaction.emoji == '7️⃣':
+      role = 'any/all'
+    if reaction.emoji == '❌':
+      for role in user.roles:
+        if not role.id == 848363067616395284 and not role.id == 854059398750404668 and not role.id == 853985058050015243 and not role.id == 854039329897578516 and not role.id == 853987124268761090 and not role.id == 853987083672879125 and not role.id == 853987031331504178 and not role.id == 854544288415088652 and not role.id == 853986930735448085 and not user.id == 263875673943179265:
+          await user.remove_roles(role)
+    else:
+      if not discord.utils.get(reaction.message.guild.roles, name=role):
+        await reaction.message.guild.create_role(name=role)
+      await user.add_roles(discord.utils.get(reaction.message.guild.roles, name=role))
+
 
 @bot.event
 async def on_message(ctx):
@@ -59,7 +109,7 @@ async def on_message(ctx):
 
   await bot.process_commands(ctx)
 
-  if ctx.channel.id == 853983506120179714:
+  if ctx.channel.id == 853983506120179714 or 854546485664546836:
     await ctx.delete()
 
   with open('data.json','w') as f:
@@ -96,6 +146,13 @@ async def gtop(ctx):
     e += f'\n{i+1}. {v[1]} {v[0]} Guild Experience'
   await ctx.send(f"-----------------------------------------------------\n                       Top Guild Experience\n                       {day} (today)\n{e}\n-----------------------------------------------------")
     
+@bot.command()
+async def role(ctx, arg=None):
+  if arg:
+    if not discord.utils.get(ctx.guild.roles, name=arg):
+      await ctx.guild.create_role(name=arg)
+    await ctx.author.add_roles(discord.utils.get(ctx.guild.roles, name=arg))
+
 @bot.command()
 async def verify(ctx, arg=None):
   if arg:
@@ -145,14 +202,6 @@ async def level(ctx, member: discord.Member=None):
     embed=discord.Embed(title="Leveling", description=f'You are level {data[f"{ctx.author.id}"]["LVL"]}\nExperience: {data[f"{ctx.author.id}"]["EXP"]} / {(data[f"{ctx.author.id}"]["LVL"]+5)*10}', color=0x3a72f2)
     await ctx.send(embed=embed)
 
-#@bot.command(aliases=["exp"])
-#async def experience(ctx, member: discord.Member=None):
-#  if member:
-#    if member.bot: return
-#    await ctx.send()
-#  else:
-#    await ctx.send(data[f'{ctx.author.id}']["EXP"])
-
 #Moderation
 @bot.command(aliases=["purge"])
 @commands.has_permissions(manage_messages=True)  
@@ -169,12 +218,13 @@ async def update(ctx):
   for m in guild.members:
     r = None
     if m.id != 263875673943179265 and not m.bot and not discord.utils.get(guild.roles, id=854544288415088652) in m.roles:
-      if discord.utils.get(guild.roles, id=854059398750404668) in m.roles:
-        for role in m.roles:
-          if role.id != 848363067616395284 and role.id != 854059398750404668:
-            await m.remove_roles(role)
-      else:
-        await m.edit(roles=[])
+      await m.remove_roles(
+        discord.utils.get(guild.roles, id=853986930735448085),
+        discord.utils.get(guild.roles, id=853987031331504178),
+        discord.utils.get(guild.roles, id=853987083672879125),
+        discord.utils.get(guild.roles, id=853987124268761090),
+        discord.utils.get(guild.roles, id=854039329897578516),
+        discord.utils.get(guild.roles, id=853985058050015243))
       if not f'{m.id}' in data:
         data[f'{m.id}'] = {}
         data[f'{m.id}']["Coins"] = 0
