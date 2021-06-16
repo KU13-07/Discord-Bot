@@ -16,7 +16,6 @@ bot = commands.Bot(command_prefix=config["prefix"],intents=discord.Intents.all()
 def multiplier(member):
   if discord.utils.get(member.guild.roles, id=853986758789824582) in member.roles:
     return(2)
-
   elif discord.utils.get(member.guild.roles, id=853987031331504178) in member.roles:
     return(2)
   elif discord.utils.get(member.guild.roles, id=853987083672879125) in member.roles:
@@ -30,7 +29,7 @@ def multiplier(member):
 
 @bot.event
 async def on_ready():
-  await update("e")
+  #await update("e")
   print(bot.user)
 
 @bot.event
@@ -68,10 +67,18 @@ async def on_message(ctx):
 
 @bot.command()
 async def gexp(ctx, arg=None):
-  await ctx.send("WIP")
-  #m = requests.get(f"https://api.mojang.com/users/profiles/minecraft/{arg}").json()
-  #if arg:  
-    #
+  if arg:
+    if len(arg) >= 3:
+      m = requests.get(f"https://api.mojang.com/users/profiles/minecraft/{arg}").json()
+      if "id" in m:
+        gData = requests.get(f'https://api.hypixel.net/guild?key={api_key}&name=aatrox').json()
+        for u in gData["guild"]["members"]:
+          if m["id"] == u["uuid"]:
+            l = []
+            for i in u["expHistory"]:
+              l.append(u["expHistory"][i])
+            await ctx.send(sum(l))
+    
 @bot.command()
 async def verify(ctx, arg=None):
   if arg:
