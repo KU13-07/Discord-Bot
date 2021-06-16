@@ -127,7 +127,7 @@ async def verify(ctx, arg=None):
     msg = await ctx.send("Error, no username given")
     await msg.delete(delay=3)
 
-@bot.command(aliases=["bal"])
+@bot.command(aliases=["bal","purse"])
 async def balance(ctx, member: discord.Member=None):
   if member:
     if member.bot: return
@@ -135,21 +135,23 @@ async def balance(ctx, member: discord.Member=None):
   else:
     await ctx.send(data[f'{ctx.author.id}']["Coins"])
 
-@bot.command(aliases=["lvl"])
+@bot.command(aliases=["lvl", "exp", "experience"])
 async def level(ctx, member: discord.Member=None):
   if member:
     if member.bot: return
-    await ctx.send(data[f'{member.id}']["LVL"])
+    embed=discord.Embed(title="Leveling", description=f'You are level {data[f"{member.id}"]["LVL"]}\nExperience: {data[f"{member.id}"]["EXP"]} / {(data[f"{member.id}"]["LVL"]+5)*10}', color=0x3a72f2)
+    await ctx.send(embed=embed)
   else:
-    await ctx.send(data[f'{ctx.author.id}']["LVL"])
+    embed=discord.Embed(title="Leveling", description=f'You are level {data[f"{ctx.author.id}"]["LVL"]}\nExperience: {data[f"{ctx.author.id}"]["EXP"]} / {(data[f"{ctx.author.id}"]["LVL"]+5)*10}', color=0x3a72f2)
+    await ctx.send(embed=embed)
 
-@bot.command(aliases=["exp"])
-async def experience(ctx, member: discord.Member=None):
-  if member:
-    if member.bot: return
-    await ctx.send(data[f'{member.id}']["EXP"])
-  else:
-    await ctx.send(data[f'{ctx.author.id}']["EXP"])
+#@bot.command(aliases=["exp"])
+#async def experience(ctx, member: discord.Member=None):
+#  if member:
+#    if member.bot: return
+#    await ctx.send()
+#  else:
+#    await ctx.send(data[f'{ctx.author.id}']["EXP"])
 
 #Moderation
 @bot.command(aliases=["purge"])
