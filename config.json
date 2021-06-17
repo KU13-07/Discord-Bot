@@ -1,5 +1,6 @@
 {
   "token": "ODM1OTQ5NDk3NTgxODMwMTQ0.YIW4ow.QH_9rwRsoH_cLjxDnvRXLWF5pZk",
   "api_key": "2982563d-23bf-4f11-9526-bb2f1308f5da",
-  "prefix": "!"
+  "prefix": "!",
+  "pokemon_cooldown": 15
 }

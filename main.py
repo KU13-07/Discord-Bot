@@ -147,6 +147,14 @@ async def gtop(ctx):
     e += f'\n{i+1}. {v[1]} {v[0]} Guild Experience'
   await ctx.send(f"-----------------------------------------------------\n                       Top Guild Experience\n                       {day} (today)\n{e}\n-----------------------------------------------------")
 
+@bot.command()
+@commands.has_permissions(administrator=True)  
+async def pc(ctx, cooldown: int=None):
+  if cooldown != None:
+    config["pokemon_cooldown"] = cooldown
+    with open("config.json", "w") as f:
+      json.dump(f, config, indent=2)
+
 @bot.command(aliases=['p'])
 async def pokemon(ctx):
   f = random.choice(os.listdir("Pokemon"))
@@ -155,7 +163,7 @@ async def pokemon(ctx):
   def check(m):
     return m.content.lower() == e.lower()
   try:
-    await bot.wait_for('message', check=check, timeout=10)
+    await bot.wait_for('message', check=check, timeout=config["pokemon_cooldown"])
   except asyncio.TimeoutError:
     await ctx.send(f'Your 10 seconds ran out, the correct answer was {e}.')
   else:
