@@ -153,7 +153,7 @@ async def pc(ctx, cooldown: int=None):
   if cooldown != None:
     config["pokemon_cooldown"] = cooldown
     with open("config.json", "w") as f:
-      json.dump(f, config, indent=2)
+      json.dump(config, f, indent=2)
   await ctx.send(config["pokemon_cooldown"])
 
 @bot.command(aliases=['p'])
