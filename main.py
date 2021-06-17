@@ -49,7 +49,7 @@ async def rolesSetup(rolesChannel):
 @bot.event
 async def on_ready():
   guild = bot.get_guild(848363067616395284)
-  await update("e")
+  #await update("e")
   await rolesSetup(bot.get_channel(854546485664546836))  
   print(bot.user)
 
@@ -154,6 +154,7 @@ async def pc(ctx, cooldown: int=None):
     config["pokemon_cooldown"] = cooldown
     with open("config.json", "w") as f:
       json.dump(f, config, indent=2)
+  await ctx.send(config["pokemon_cooldown"])
 
 @bot.command(aliases=['p'])
 async def pokemon(ctx):
@@ -165,7 +166,7 @@ async def pokemon(ctx):
   try:
     await bot.wait_for('message', check=check, timeout=config["pokemon_cooldown"])
   except asyncio.TimeoutError:
-    await ctx.send(f'Your 10 seconds ran out, the correct answer was {e}.')
+    await ctx.send(f'Your {config["pokemon_cooldown"]} seconds ran out, the correct answer was {e}.')
   else:
     await ctx.send("Correct")
 
