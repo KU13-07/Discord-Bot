@@ -50,6 +50,7 @@ async def rolesSetup(rolesChannel):
 
 @bot.event
 async def on_ready():
+  print(os.listdir())
   guild = bot.get_guild(848363067616395284)
   #await update("e")
   await rolesSetup(bot.get_channel(854546485664546836))  
@@ -283,7 +284,7 @@ async def cleanup(ctx):
 async def play(ctx, arg: str=None):
   botVoice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
   if botVoice:
-    botVoice.play(discord.FFmpegPCMAudio(executable="player.exe", source="song.mp3"))
+    botVoice.play(discord.FFmpegPCMAudio(executable="ffmpeg.exe", source="song.mp3"))
 
 @bot.command()
 async def role(ctx, arg=None):
