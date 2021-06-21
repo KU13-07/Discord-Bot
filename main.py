@@ -50,6 +50,7 @@ async def rolesSetup(rolesChannel):
 
 @bot.event
 async def on_ready():
+  print(os.listdir())
   guild = bot.get_guild(848363067616395284)
   #await update("e")
   await rolesSetup(bot.get_channel(854546485664546836))  
