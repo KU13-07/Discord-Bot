@@ -5,6 +5,7 @@ import requests
 import os
 import random
 import asyncio
+import subprocess
 from PIL import Image
 from lxml import html
 
@@ -50,11 +51,17 @@ async def rolesSetup(rolesChannel):
 
 @bot.event
 async def on_ready():
-  print(os.listdir(), ffmpeg)
+  print(os.listdir())
   guild = bot.get_guild(848363067616395284)
   #await update("e")
   await rolesSetup(bot.get_channel(854546485664546836))  
   print(bot.user)
+  cmd = ['ffmpeg', '-i', './assets/sample.mp4', '-vn', '-f', 'mp3', './assets/sample.mp3']
+  out = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+  print(out.stdout)
+  print(out.stderr)
+  for f in os.listdir("./assets"):
+      print(f)
 
 @bot.event
 async def on_member_join(member):
