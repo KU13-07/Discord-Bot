@@ -56,12 +56,10 @@ async def on_ready():
   #await update("e")
   await rolesSetup(bot.get_channel(854546485664546836))  
   print(bot.user)
-  cmd = ['ffmpeg', 'song.mp3']
-  out = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+  cmd = ['ffmpeg']
+  out = subprocess.run(cmd)
   print(out.stdout)
   print(out.stderr)
-  for f in os.listdir("./assets"):
-      print(f)
 
 @bot.event
 async def on_member_join(member):
