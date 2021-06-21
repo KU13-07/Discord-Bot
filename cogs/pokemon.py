@@ -20,45 +20,37 @@ class Pokemon(commands.Cog):
 
     @commands.group(aliases=['p'])
     async def pokemon(self, ctx):
-        if ctx.channel.id == 855122761071984660:
-            if ctx.invoked_subcommand is None:
-                await help(ctx)
+        if not ctx.invoked_subcommand:
+            await ctx.invoke(self.bot.get_command('pokemon whosthatpokemon'))
 
-    @pokemon.command(aliases=['h'])
-    async def help(self, ctx):
-        await ctx.send("HELP")
-
-    @pokemon.command(aliases=['aw','awtp', 'autowhosthatpokemon'])
-    async def auto_whos_that_pokemon(ctx, lives: int=3, gen: int=None):
-        if lives <= 10:
-            while not lives == 0:
-                if await whos_that_pokemon(ctx, gen, lives):
-                    lives -= 1
-            embed=discord.Embed(title="Pokémon", description=f"Auto Pokémon | 0 Lives Remaining", color=0xffcb05)
-            await ctx.send(embed=embed)
-            
-    @pokemon.command(aliases=['wtp', 'w', 'whosthatpokemon'])
-    async def whos_that_pokemon(self, ctx, gen: int=None, lives=None):
+    @pokemon.command()
+    async def whosthatpokemon(self, ctx, gen=None, lives=None):
         if ctx.channel.id == 855122761071984660:
+            IsGen = False
             f = 1, 898
             if gen:
-                if gen <= 8:
-                    if gen == 1:
-                        f = 1, 151
-                    elif gen == 2:
-                        f = 152, 251
-                    elif gen == 3:
-                        f = 252, 386
-                    elif gen == 4:
-                        f = 387, 493
-                    elif gen == 5:
-                        f = 494, 649
-                    elif gen == 6:
-                        f = 650, 721
-                    elif gen == 7:
-                        f = 722, 809
-                    elif gen == 8:
-                        f = 810, 898
+                try: 
+                    gen = int(gen)
+                    if gen <= 8:
+                        IsGen = True
+                        if gen == 1:
+                            f = 1, 151
+                        elif gen == 2:
+                            f = 152, 251
+                        elif gen == 3:
+                            f = 252, 386
+                        elif gen == 4:
+                            f = 387, 493
+                        elif gen == 5:
+                            f = 494, 649
+                        elif gen == 6:
+                            f = 650, 721
+                        elif gen == 7:
+                            f = 722, 809
+                        elif gen == 8:
+                            f = 810, 898
+                except:
+                    pass
             e = random.randint(f[0],f[1])
             page = requests.get(f"https://www.pokemon.com/us/pokedex/{e}")
             
@@ -87,7 +79,7 @@ class Pokemon(commands.Cog):
             a = "Who's That Pokémon?"
             f = ""
             l = ""
-            if gen:
+            if IsGen:
                 f = f" | Generation {gen} Edition"
             if lives:
                 a = "Auto Pokémon"
@@ -112,6 +104,19 @@ class Pokemon(commands.Cog):
             
             if r:
                 return True
+
+    @pokemon.command(aliases=['h'])
+    async def help(self, ctx):
+        await ctx.send("HELP")
+
+    @pokemon.command(aliases=['a'])
+    async def auto(self, ctx, lives: int=3, gen: int=None):
+        if lives <= 10:
+            while not lives == 0:
+                if await ctx.invoke(self.bot.get_command('pokemon whosthatpokemon'),gen=gen,lives=lives):
+                    lives -= 1
+            embed=discord.Embed(title="Pokémon", description=f"Auto Pokémon | 0 Lives Remaining", color=0xffcb05)
+            await ctx.send(embed=embed)
 
     @pokemon.command(aliases=['c'])
     @commands.has_permissions(administrator=True)  
