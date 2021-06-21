@@ -283,7 +283,7 @@ async def cleanup(ctx):
 async def play(ctx, arg: str=None):
   botVoice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
   if botVoice:
-    botVoice.play(discord.FFmpegPCMAudio(executable="ffmpeg.exe", source="song.mp3"))
+    botVoice.play(discord.FFmpegPCMAudio(executable="player.exe", source="song.mp3"))
 
 @bot.command()
 async def role(ctx, arg=None):
