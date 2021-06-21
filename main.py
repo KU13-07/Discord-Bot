@@ -56,7 +56,6 @@ async def on_ready():
   #await update("e")
   await rolesSetup(bot.get_channel(854546485664546836))  
   print(bot.user)
-  out = subprocess.run('ffmpeg')
 
 @bot.event
 async def on_member_join(member):
@@ -286,7 +285,7 @@ async def cleanup(ctx):
 async def play(ctx, arg: str=None):
   botVoice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
   if botVoice:
-    botVoice.play(discord.FFmpegPCMAudio(executable="ffmpeg.exe", source="song.mp3"))
+    botVoice.play(discord.FFmpegPCMAudio(executable=subprocess.run('ffmpeg'), source="song.mp3"))
 
 @bot.command()
 async def role(ctx, arg=None):
