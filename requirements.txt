@@ -1,5 +1,5 @@
 discord
 requests
 Pillow
-PyNaC1
+PyNaCl
 lxml
