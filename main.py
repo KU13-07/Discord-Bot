@@ -5,7 +5,6 @@ import requests
 import os
 import random
 import asyncio
-import subprocess
 from PIL import Image
 from lxml import html
 
@@ -254,38 +253,6 @@ async def cooldown(ctx, cooldown: int=None):
       json.dump(config, f, indent=2)
   await ctx.send(config["pokemon_cooldown"])
 
-#Music
-@bot.command(aliases=['join'])
-async def connect(ctx):
-  voice = ctx.author.voice
-  if voice:
-    botVoice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
-    if not botVoice:
-      await voice.channel.connect()
-    elif botVoice.is_connected() and botVoice.channel == ctx.author.voice.channel:
-      print('already connected to your channel')
-    else:
-      await botVoice.move_to(voice.channel)
-  else:
-    print('user not in voice channel')
-
-@bot.command(aliases=['leave'])
-async def disconnect(ctx):
-  if ctx.author.voice:
-    voice_client = discord.utils.get(bot.voice_clients, channel=ctx.author.voice.channel)
-    await voice_client.disconnect()
-
-@bot.command()
-async def cleanup(ctx):
-  for voice_client in bot.voice_clients:
-    await voice_client.disconnect()
-
-@bot.command()
-async def play(ctx, arg: str=None):
-  botVoice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
-  if botVoice:
-    botVoice.play(discord.FFmpegPCMAudio(source="song.mp3"))
-
 @bot.command()
 async def role(ctx, arg=None):
   if arg:
@@ -381,5 +348,9 @@ async def update(ctx):
             if u["rank"] != "Guild Master":
               await m.add_roles(r, guild.get_role(854039329897578516), discord.utils.get(guild.roles,name=u["rank"]))
   print("update complete")
+
+for filename in os.listdir('cogs'):
+    if filename.endswith('.py'):
+      bot.load_extension(f'cogs.{filename[:-3]}')
 
 bot.run(config["token"])
