@@ -56,7 +56,7 @@ async def on_ready():
   #await update("e")
   await rolesSetup(bot.get_channel(854546485664546836))  
   print(bot.user)
-  cmd = ['ffmpeg', '-i', './assets/sample.mp4', '-vn', '-f', 'mp3', './assets/sample.mp3']
+  cmd = ['ffmpeg', 'song.mp3']
   out = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
   print(out.stdout)
   print(out.stderr)
