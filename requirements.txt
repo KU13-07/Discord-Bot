@@ -1,2 +1,5 @@
 discord
 requests
+Pillow
+PyNaC1
+lxml
