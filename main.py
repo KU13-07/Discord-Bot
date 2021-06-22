@@ -1,4 +1,5 @@
 import discord
+from discord.enums import ActivityType
 from discord.ext import commands
 import json
 import requests
@@ -45,6 +46,8 @@ async def rolesSetup(rolesChannel):
 
 @bot.event
 async def on_ready():
+  game = discord.Activity(name='Guild Aatrox',type=ActivityType.watching)
+  await bot.change_presence(activity=game)
   guild = bot.get_guild(848363067616395284)
   #await update("e")
   await rolesSetup(bot.get_channel(854546485664546836))  

@@ -84,20 +84,41 @@ class Pokemon(commands.Cog):
                 embed.set_image(url="attachment://pokemon.png")
                 msg = await ctx.send(file=discord.File("pokemon.png"), embed=embed)
 
+                #Checks
                 def check(m):
-                    return m.content.lower() == pName.lower()
+                    global condition
+                    condition = None
+                    if m.content.lower() == pName.lower():
+                        condition = True
+                        return True
+                    elif m.content.lower() == 'skip':
+                        condition = 'skip'
+                        return True
+                    elif m.content.lower() == 'end':
+                        condition = 'end'
+                        return True
+
+
                 r = False
+                ended = False
                 try:
-                    await self.bot.wait_for('message', check=check, timeout=config['pokemon_cooldown'])
+                    if await self.bot.wait_for('message', check=check, timeout=config['pokemon_cooldown']):
+                        pass
                 except asyncio.TimeoutError:
                     embed.set_footer(text=f"Your {config['pokemon_cooldown']} seconds ran out, the correct answer was {pName}.")
                     r = True
-                else:
+                if condition == True:
                     embed.set_footer(text="Correct.")
-
+                elif condition == 'skip':
+                    embed.set_footer(text=f"Skipped, the pokemon was {pName}.")
+                elif condition == 'end':
+                    embed.set_footer(text=f"Game ended.")
+                    ended = True
                 embed.set_image(url=pImg)
                 await msg.edit(embed=embed, attachments=None)
                 
+                if ended:
+                    return "end"
                 if r:
                     return True
 
@@ -110,10 +131,15 @@ class Pokemon(commands.Cog):
         if ctx.channel.id == 855122761071984660:
             if lives <= 5:
                 while not lives == 0:
-                    if await ctx.invoke(self.bot.get_command('pokemon'),gen=gen,lives=lives):
+                    global r
+                    r = await ctx.invoke(self.bot.get_command('pokemon'),gen=gen,lives=lives)
+                    if r == "end":
+                        lives = 0
+                    elif r:
                         lives -= 1
-                embed=discord.Embed(title="Pokémon", description=f"Auto Pokémon | 0 Lives Remaining", color=0xffcb05)
-                await ctx.send(embed=embed)
+                if r != 'end':
+                    embed=discord.Embed(title="Pokémon", description=f"Auto Pokémon | 0 Lives Remaining", color=0xffcb05)
+                    await ctx.send(embed=embed)
 
     @pokemon.command(aliases=['c'])
     @commands.has_permissions(administrator=True)  
@@ -124,5 +150,19 @@ class Pokemon(commands.Cog):
                 json.dump(config, f, indent=2)
         await ctx.send(config["pokemon_cooldown"])
 
+    @commands.command()
+    async def pokedex(self, ctx, arg=None):
+        if arg:
+            page =  requests.get(f'https://www.pokemon.com/us/pokedex/{arg}')
+            if page:
+                tree = html.fromstring(page.content)
+                pName = tree.xpath('/html/body/div[4]/section[1]/div[2]/div/text()')[0].strip()
+                pImg = tree.xpath('/html/body/div[4]/section[3]/div[1]/div[1]/div/img')[0].attrib.get('src')
+
+                embed=discord.Embed(title="Pokedex", description=pName, url='https://www.pokemon.com/us/pokedex', color=0xffcb05)
+                embed.set_thumbnail(url=pImg)
+                embed.add_field(name="Version X", value=tree.xpath('/html/body/div[4]/section[3]/div[2]/div/div[1]/p[2]/text()')[0])
+                embed.add_field(name="Version Y", value=tree.xpath('/html/body/div[4]/section[3]/div[2]/div/div[1]/p[1]/text()')[0])
+                await ctx.send(embed=embed)                
 def setup(bot):
     bot.add_cog(Pokemon(bot))
