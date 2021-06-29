@@ -12,6 +12,8 @@ with open('data.json') as f:
 api_key = config["api_key"]
 
 bot = commands.Bot(command_prefix=config["prefix"],intents=discord.Intents.all(),case_insensitive=True)
+bot.config = config
+bot.data = data
 
 def multiplier(member):
   if member.guild.get_role(853986758789824582) in member.roles:
@@ -66,6 +68,13 @@ async def on_member_join(member):
     json.dump(data,f,indent=2)
 
 @bot.event
+async def on_member_leave(member):
+  if member.bot: return
+  del data[f'{member.id}']
+  with open('data.json','w') as f:
+    json.dump(data,f,indent=2)
+
+@bot.event
 async def on_reaction_add(reaction, user):
   if user.bot: return
   if reaction.message.channel.id == 854546485664546836:
@@ -101,6 +110,13 @@ async def on_message(ctx):
   if isinstance(ctx.channel, discord.channel.DMChannel): return
 
   AuthorId = str(ctx.author.id)
+
+  if not AuthorId in data:
+    data[AuthorId] = {}
+    data[AuthorId]["Coins"] = 0
+    data[AuthorId]["LVL"] = 1
+    data[AuthorId]["EXP"] = 0
+
   data[AuthorId]["Coins"] += (1*multiplier(ctx.author))
   data[AuthorId]["EXP"] += (1*multiplier(ctx.author))
 
@@ -115,37 +131,6 @@ async def on_message(ctx):
 
   with open('data.json','w') as f:
     json.dump(data,f,indent=2)
-
-@bot.command()
-async def gexp(ctx, arg=None):
-  if arg:
-    if len(arg) >= 3:
-      m = requests.get(f"https://api.mojang.com/users/profiles/minecraft/{arg}").json()
-      if "id" in m:
-        gData = requests.get(f'https://api.hypixel.net/guild?key={api_key}&name=aatrox').json()
-        for u in gData["guild"]["members"]:
-          if m["id"] == u["uuid"]:
-            l = []
-            for i in u["expHistory"]:
-              l.append(u["expHistory"][i])
-            await ctx.send(sum(l))
-
-@bot.command()
-async def gtop(ctx):
-  gData = requests.get(f'https://api.hypixel.net/guild?key={api_key}&name=aatrox').json()
-  day = None
-  l = {}
-  for u in gData["guild"]["members"]:
-    for f in u["expHistory"]:
-      if not day:
-          day = f
-    f = requests.get(f'https://api.mojang.com/user/profiles/{u["uuid"]}/names').json()
-    l[f[-1]["name"]] = u["expHistory"][day]
-  sort_orders = sorted(l.items(), key=lambda x: x[1], reverse=True)
-  e = str()
-  for i, v in enumerate(sort_orders):
-    e += f'\n{i+1}. {v[1]} {v[0]} Guild Experience'
-  await ctx.send(f"-----------------------------------------------------\n                       Top Guild Experience\n                       {day} (today)\n{e}\n-----------------------------------------------------")
 
 @bot.command()
 async def role(ctx, arg=None):
@@ -192,16 +177,6 @@ async def balance(ctx, member: discord.Member=None):
     await ctx.send(data[f'{member.id}']["Coins"])
   else:
     await ctx.send(data[f'{ctx.author.id}']["Coins"])
-
-@bot.command(aliases=["lvl", "exp", "experience"])
-async def level(ctx, member: discord.Member=None):
-  if member:
-    if member.bot: return
-    embed=discord.Embed(title="Leveling", description=f'You are level {data[f"{member.id}"]["LVL"]}\nExperience: {data[f"{member.id}"]["EXP"]} / {(data[f"{member.id}"]["LVL"]+5)*10}', color=0x3a72f2)
-    await ctx.send(embed=embed)
-  else:
-    embed=discord.Embed(title="Leveling", description=f'You are level {data[f"{ctx.author.id}"]["LVL"]}\nExperience: {data[f"{ctx.author.id}"]["EXP"]} / {(data[f"{ctx.author.id}"]["LVL"]+5)*10}', color=0x3a72f2)
-    await ctx.send(embed=embed)
 
 #Moderation
 @bot.command(aliases=["purge"])
