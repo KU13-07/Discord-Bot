@@ -3,13 +3,11 @@ from discord.ext import commands
 import requests
 import json
 
-with open('config.json') as f:
-  config = json.load(f)
-api_key = config["api_key"]
-
 class Guild(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.config = bot.config
+        self.api_key = bot.config['api_key']
 
     @commands.Cog.listener()
     async def on_ready(self):
@@ -17,7 +15,7 @@ class Guild(commands.Cog):
 
     @commands.command()
     async def gtop(self, ctx):
-        gData = requests.get(f'https://api.hypixel.net/guild?key={api_key}&name=aatrox').json()
+        gData = requests.get(f'https://api.hypixel.net/guild?key={self.api_key}&name=aatrox').json()
         day = None
         l = {}
         for u in gData["guild"]["members"]:
@@ -26,9 +24,9 @@ class Guild(commands.Cog):
             f = requests.get(f'https://api.mojang.com/user/profiles/{u["uuid"]}/names').json()
             l[f[-1]["name"]] = u["expHistory"][day]
         sort_orders = sorted(l.items(), key=lambda x: x[1], reverse=True)
-        e = str()
-        for i, v in enumerate(sort_orders):
-            e += f'\n{i+1}. {v[1]} {v[0]} Guild Experience'
+        e = ""
+        for x in range(0, 10):
+            e += f'\n{x+1}. {sort_orders[x][0]} {sort_orders[x][1]} Guild Experience'
         await ctx.send(f"-----------------------------------------------------\n                       Top Guild Experience\n                       {day} (today)\n{e}\n-----------------------------------------------------")
 
 

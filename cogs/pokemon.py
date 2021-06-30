@@ -7,12 +7,10 @@ import requests
 from PIL import Image
 from lxml import html
 
-with open('config.json', 'r') as f:
-    config = json.load(f)
-
 class Pokemon(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.config = bot.config
 
     @commands.Cog.listener()
     async def on_ready(self):
@@ -102,10 +100,10 @@ class Pokemon(commands.Cog):
                 r = False
                 ended = False
                 try:
-                    if await self.bot.wait_for('message', check=check, timeout=config['pokemon_cooldown']):
+                    if await self.bot.wait_for('message', check=check, timeout=self.config['pokemon_cooldown']):
                         pass
                 except asyncio.TimeoutError:
-                    embed.set_footer(text=f"Your {config['pokemon_cooldown']} seconds ran out, the correct answer was {pName}.")
+                    embed.set_footer(text=f"Your {self.config['pokemon_cooldown']} seconds ran out, the correct answer was {pName}.")
                     r = True
                 if condition == True:
                     embed.set_footer(text="Correct.")
@@ -145,10 +143,10 @@ class Pokemon(commands.Cog):
     @commands.has_permissions(administrator=True)  
     async def cooldown(self, ctx, cooldown: int=None):
         if cooldown != None:
-            config["pokemon_cooldown"] = cooldown
+            self.config["pokemon_cooldown"] = cooldown
             with open("../config.json", "w") as f:
-                json.dump(config, f, indent=2)
-        await ctx.send(config["pokemon_cooldown"])
+                json.dump(self.config, f, indent=2)
+        await ctx.send(self.config["pokemon_cooldown"])
 
     @commands.command()
     async def pokedex(self, ctx, arg=None):
